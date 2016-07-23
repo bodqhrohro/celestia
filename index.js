@@ -1,10 +1,18 @@
-var Client = require('node-xmpp-client')
 var config = require('./config')
-var hash = require('random-string')
+
 var fs = require('fs')
+
+var Client = require('node-xmpp-client')
+
+var hash = require('random-string')
 var _ = require('underscore')
 var markov = require('markov')
 var express = require('express')()
+
+var fetch = require('fetch').fetchUrl
+var parser = require('htmlparser')
+var $ = require('soupselect').select
+var unhtml = require('unescape-html')
 
 var mad = markov(1)
 
@@ -70,6 +78,23 @@ var randomImage = function() {
 	return images[_.random(images.length-1)]
 }
 
+var fetchBashorg = function(body) {
+	try {
+		fetch(body.match(/https?:\/\/[a-z\.\/\?=]+\d+/)[0], function(err, meta, res) {
+			if (err) { throw 'Bashorg: Invalid URL' }
+			(new parser.Parser(new parser.DefaultHandler(function(err, dom) {
+				if (err) { throw 'Bashorg: Bogus HTML' }
+				sendMessage(($(dom, '.quote .text')[0] || $(dom, '.q div')[4]).children.reduce(function(msg, tag) {
+					return msg + (tag.type == 'text' ? unhtml(tag.data) : '\n')
+				}, ''))
+			}))).parseComplete(res.toString())
+		})
+	} catch(e) {
+		sendMessage('Pure, pure Bashorg!')
+		throw e
+	}
+}
+
 client.on('online', function() {
 	client.send(new Client.Stanza('presence', {
 		from: config.jid,
@@ -110,6 +135,8 @@ client.on('stanza', function(stanza) {
 							command(body, from)
 						else if (/хуй|хуя|пизд|жоп|еб |ёб |ебат|блят|бляд|клоп|хул|сука/i.test(body))
 							sendMessage('YOU WILL BE PUNISHED!', from)
+						else if (/bash\.im|bezdna\.su/.test(body))
+							fetchBashorg(body)
 					}
 				}
 			}

@@ -1,6 +1,6 @@
 {
   "name": "celestia",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "I was made to satisfy your values through friendship and ponies",
   "main": "index.js",
   "scripts": {
@@ -16,9 +16,13 @@
   "license": "WTFPL",
   "dependencies": {
     "express": "^4.14.0",
+    "fetch": "^1.1.0",
+    "jsdom": "3.1.2",
     "markov": "0.0.7",
     "node-xmpp-client": "^3.0.0",
     "random-string": "^0.1.2",
-    "underscore": "^1.8.3"
+    "soupselect": "^0.2.0",
+    "underscore": "^1.8.3",
+    "unescape-html": "^1.0.0"
   }
 }
