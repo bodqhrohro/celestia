@@ -159,7 +159,7 @@ var seed = fs.readFileSync('stdout.log').toString().split('\n').map(function(lin
 }).join('\n')
 mad.seed(seed)
 
-var wordFilter = new RegExp(fs.readFileSync('wordFilter.txt').toString().trimRight().replace('\n', '|'), 'i')
+var wordFilter = new RegExp(fs.readFileSync('wordFilter.txt').toString().trimRight().replace(/\n/g, '|'), 'i')
 
 var logFile = fs.openSync('stdout.log', 'a')
 var errorFile = fs.openSync('error.log', 'a')
