@@ -133,7 +133,7 @@ client.on('stanza', function(stanza) {
 					} else {
 						if (/[\.!]/.test(body[0]))
 							command(body, from)
-						else if (config.wordFilter.test(body))
+						else if (wordFilter.test(body))
 							sendMessage('YOU WILL BE PUNISHED!', from)
 						else if (/bash\.im|bezdna\.su/.test(body))
 							fetchBashorg(body)
@@ -158,6 +158,8 @@ var seed = fs.readFileSync('stdout.log').toString().split('\n').map(function(lin
 	return line
 }).join('\n')
 mad.seed(seed)
+
+var wordFilter = new RegExp(fs.readFileSync('wordFilter.txt').toString().trimRight().replace('\n', '|'), 'i')
 
 var logFile = fs.openSync('stdout.log', 'a')
 var errorFile = fs.openSync('error.log', 'a')
