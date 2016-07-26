@@ -133,7 +133,7 @@ client.on('stanza', function(stanza) {
 					} else {
 						if (/[\.!]/.test(body[0]))
 							command(body, from)
-						else if (/хуй|хуя|пизд|жоп|еб |ёб |ебат|блят|бляд|клоп|хул|сука/i.test(body))
+						else if (config.wordFilter.test(body))
 							sendMessage('YOU WILL BE PUNISHED!', from)
 						else if (/bash\.im|bezdna\.su/.test(body))
 							fetchBashorg(body)
