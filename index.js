@@ -137,7 +137,7 @@ client.on('stanza', function(stanza) {
 							var response, noInfLoop=5
 							do
 								response = mad.respond(rawMsg)
-							while (!response.length && noInfLoop)
+							while (!response.length && noInfLoop--)
 							sendMessage(response, from)
 						}
 					} else {
