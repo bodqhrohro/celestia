@@ -134,10 +134,10 @@ client.on('stanza', function(stanza) {
 							sendMessage(randomImage(), from)
 						} else {
 							//sendMessage('I was made to satisfy your values through friendship and ponies', from)
-							var response
+							var response, noInfLoop=5
 							do
 								response = mad.respond(rawMsg)
-							while (!response)
+							while (!response.length && noInfLoop)
 							sendMessage(response, from)
 						}
 					} else {
