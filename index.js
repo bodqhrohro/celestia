@@ -6,7 +6,7 @@ var Client = require('node-xmpp-client')
 
 var hash = require('random-string')
 var _ = require('underscore')
-var markov = require('markov')
+var markov = require('markov-respond')
 var express = require('express')()
 
 var fetch = require('fetch').fetchUrl
@@ -14,7 +14,7 @@ var parser = require('htmlparser')
 var $ = require('soupselect').select
 var unhtml = require('unescape-html')
 
-var mad = markov(1)
+var mad = new markov(1, 1)
 
 var client = new Client({
 	jid: config.jid,
@@ -43,6 +43,12 @@ var dateTime = function() {
 		d.getSeconds(),
 	].map(function(num) { return num > 9 ? num : '0' + num })
 	return '[ ' + arr[1] + '/' + arr[0] + '/' + arr[2] + ' ' + arr[3] + ':' + arr[4] + ':' + arr[5] + ' ] '
+}
+
+var trainMad = function(line) {
+	mad.train(line.replace(/^\w+:/, '').split(' ').filter(function(word) {
+		return !word.match(/\/\//)
+	}).join(' '))
 }
 
 var writeLog = function(line) {
@@ -128,7 +134,11 @@ client.on('stanza', function(stanza) {
 							sendMessage(randomImage(), from)
 						} else {
 							//sendMessage('I was made to satisfy your values through friendship and ponies', from)
-							sendMessage(mad.respond(rawMsg).join(' '), from)
+							var response
+							do
+								response = mad.respond(rawMsg)
+							while (!response)
+							sendMessage(response, from)
 						}
 					} else {
 						if (/[\.!]/.test(body[0]))
@@ -137,6 +147,8 @@ client.on('stanza', function(stanza) {
 							sendMessage('YOU WILL BE PUNISHED!', from)
 						else if (/bash\.im|bezdna\.su/.test(body))
 							fetchBashorg(body)
+						else
+							trainMad(body)
 					}
 				}
 			}
@@ -151,13 +163,13 @@ client.on('error', function(e) {
 })
 
 var scpos
-var seed = fs.readFileSync('stdout.log').toString().split('\n').map(function(line) {
-	line = line.replace(/^\[.+\]/, '')
-	line = line.replace(/^.+:/, '')
-	line = line.replace(/^\w+:/, '')
-	return line
-}).join('\n')
-mad.seed(seed)
+fs.readFileSync('stdout.log').toString().split('\n').forEach(function(line) {
+	line = line.replace(/^\[.+\] /, '')
+	if (!line.indexOf(config.nick.split(/v\d/)[0]) || line.match(/^undefined/))
+		return
+
+	trainMad(line.replace(/^.+:/, ''))
+})
 
 var wordFilter = new RegExp(fs.readFileSync('wordFilter.txt').toString().trimRight().replace(/\n/g, '|'), 'i')
 
