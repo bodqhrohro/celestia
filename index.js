@@ -18,19 +18,37 @@ var unhtml = require('unescape-html')
 
 var mad = new markov(1, 1)
 
+var nicks = []
+
 var client = new Client({
 	jid: config.jid,
 	password: config.pw
 })
 
+var preventNicksHighlight = function(msg, i) {
+	i = (typeof i === 'number') ? i : 0
+	var newMsg = nicks.reduce(function(newMsg, nick) {
+		return newMsg.replace(/^(.)./, '$1' + (
+			(nick.charAt(1) !== '-') ? '-' : '_'
+		))
+	}, msg)
+	// limit of recursion
+	if (msg !== newMsg && i <= 20) {
+		return preventNicksHighlight(newMsg, ++i);
+	} else {
+		return newMsg;
+	}
+}
+
 var sendMessage = function(message, to) {
-	client.send(new Client.Stanza('message', {
-		from: config.jid,
-		id: hash(),
-		to: config.conf,
-		type: 'groupchat'
-	})
-		.c('body').t((to ? to + ': ' : '') + message)
+	var fullMsg = ((to ? to + ': ' : '') + message)
+	client.send(
+		new Client.Stanza('message', {
+			from: config.jid,
+			id: hash(),
+			to: config.conf,
+			type: 'groupchat'
+		}).c('body').t(preventNicksHighlight(fullMsg))
 	)
 }
 
@@ -152,6 +170,19 @@ client.on('stanza', function(stanza) {
 						else
 							trainMad(body)
 					}
+				}
+			}
+		} else if (stanza.name == 'presence') {
+			var nick = stanza.attrs.from.split('/')[1]
+			var isOnline = stanza.attrs.type !== 'unavailable'
+			var nickIdx = nicks.indexOf(nick)
+			if (isOnline) {
+				if (!~nickIdx) {
+					nicks.push(nick)
+				}
+			} else {
+				if (~nickIdx) {
+					nicks.splice(nickIdx, 1)
 				}
 			}
 		}
