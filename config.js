@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
 	jid: 'princesscelestia@jab.ber',
 	pw: 'ponies',
