@@ -28,9 +28,12 @@ var client = new Client({
 var preventNicksHighlight = function(msg, i) {
 	i = (typeof i === 'number') ? i : 0
 	var newMsg = nicks.reduce(function(newMsg, nick) {
-		return newMsg.replace(/^(.)./, '$1' + (
-			(nick.charAt(1) !== '-') ? '-' : '_'
-		))
+		return newMsg.replace(
+			nick,
+			nick.replace(/^(.)./, '$1' + (
+				(nick.charAt(1) !== '-') ? '-' : '_'
+			))
+		)
 	}, msg)
 	// limit of recursion
 	if (msg !== newMsg && i <= 20) {
