@@ -44,14 +44,14 @@ var preventNicksHighlight = function(msg, i) {
 }
 
 var sendMessage = function(message, to) {
-	var fullMsg = ((to ? to + ': ' : '') + message)
+	var fullMsg = (to ? to + ': ' : '') + preventNicksHighlight(message)
 	client.send(
 		new Client.Stanza('message', {
 			from: config.jid,
 			id: hash(),
 			to: config.conf,
 			type: 'groupchat'
-		}).c('body').t(preventNicksHighlight(fullMsg))
+		}).c('body').t(fullMsg)
 	)
 }
 
