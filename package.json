@@ -1,6 +1,6 @@
 {
   "name": "celestia",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "I was made to satisfy your values through friendship and ponies",
   "main": "index.js",
   "scripts": {
